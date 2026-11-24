@@ -1,0 +1,88 @@
+TAP version 13
+# Subtest: 10位含前导零
+ok 1 - 10位含前导零
+  ---
+  duration_ms: 2.585248
+  type: 'test'
+  ...
+# Subtest: 拒绝11位
+ok 2 - 拒绝11位
+  ---
+  duration_ms: 0.300209
+  type: 'test'
+  ...
+# Subtest: 抽取开关
+ok 3 - 抽取开关
+  ---
+  duration_ms: 0.27396
+  type: 'test'
+  ...
+# Subtest: 人格表100项
+ok 4 - 人格表100项
+  ---
+  duration_ms: 0.16707
+  type: 'test'
+  ...
+# Subtest: 中位
+ok 5 - 中位
+  ---
+  duration_ms: 0.492577
+  type: 'test'
+  ...
+# Subtest: 末位
+ok 6 - 末位
+  ---
+  duration_ms: 0.20744
+  type: 'test'
+  ...
+# Subtest: 补全翻转
+ok 7 - 补全翻转
+  ---
+  duration_ms: 0.286298
+  type: 'test'
+  ...
+# Subtest: 双池独立
+ok 8 - 双池独立
+  ---
+  duration_ms: 0.398096
+  type: 'test'
+  ...
+# Subtest: 敌方策略末位
+ok 9 - 敌方策略末位
+  ---
+  duration_ms: 0.490334
+  type: 'test'
+  ...
+# Subtest: 拒绝既定结果、未知对象与用户策略
+ok 10 - 拒绝既定结果、未知对象与用户策略
+  ---
+  duration_ms: 1.038584
+  type: 'test'
+  ...
+# Subtest: 身份人格顺序
+ok 11 - 身份人格顺序
+  ---
+  duration_ms: 0.343964
+  type: 'test'
+  ...
+# Subtest: 选项解析
+ok 12 - 选项解析
+  ---
+  duration_ms: 1.741976
+  type: 'test'
+  ...
+# Subtest: 空计划不强制掷点
+ok 13 - 空计划不强制掷点
+  ---
+  duration_ms: 0.337966
+  type: 'test'
+  ...
+1..13
+# tests 13
+# suites 0
+# pass 13
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 89.462197
