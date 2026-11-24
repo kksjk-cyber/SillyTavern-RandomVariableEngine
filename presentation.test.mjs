@@ -6,4 +6,4 @@ test('incomplete fence not eligible for hiding',()=>assert.deepEqual(metadataBlo
 test('legacy tags read',()=>assert.equal(readMetadata('正文'+payload).parsed.scene.time,'18:30'));
 test('unrecognized data not hidden',()=>assert.equal(metadataOnly('<other>正文</other>'),false));
 test('unclosed tag not hidden',()=>assert.equal(metadataOnly('<rv-status>状态'),false));
-test('appearance settings default',()=>assert.deepEqual(appearanceDefaults,{chatCards:true,cleanChat:true}));
+test('appearance settings default',()=>assert.deepEqual(appearanceDefaults,{chatCards:true,cleanChat:true,showTurn:true,expandTurn:false}));
