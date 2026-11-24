@@ -1,0 +1,17 @@
+import test from 'node:test';import assert from 'node:assert/strict';import {defaults} from './core.js';import {upgradeDefaults,probability,d100,grade,execute,normalizeState,visibleFacts,npcContext,applyNpcProposal,parseNpcProposal,extraPrompt,diagnostics,promptContains} from './simulation.js';
+const cfg={...defaults,...upgradeDefaults};
+const event={type:'combat',actor:'林舟',side:'ally',basis:'与对手进行剑术比赛',probability:{base:50,skill:20,environment:-10,preparation:15,opposition:-10}};
+const state=normalizeState({npcs:[{name:'林舟',traits:['谨慎'],goal:'寻找地图',trust:65},{name:'陈平',traits:['直率']}],facts:[{id:'a',text:'地图有两个版本',knownBy:['林舟']},{id:'b',text:'港口关闭',public:true}]});
+test('概率公式与修正边界',()=>{assert.equal(probability(event.probability).chance,65);assert.equal(probability({base:95,skill:900}).chance,95);assert.equal(probability({base:5,skill:-900}).chance,5);});
+test('d100 边界与六档结果',()=>{assert.equal(d100(()=>0),1);assert.equal(d100(()=>.9999),100);assert.deepEqual([1,25,50,55,75,100].map(r=>grade(r,50)),['大成功','成功','部分成功','部分失败','失败','大失败']);});
+test('兼容原演算且动态开关独立',()=>{let old=execute('0123456789',[event],cfg,()=>0.49);let now=execute('0123456789',[event],{...cfg,dynamic:true},()=>0.49);assert.equal(old.records[0].used,now.records[0].used);assert.equal(old.liveRest,now.liveRest);assert.equal(now.records[0].probability.roll,50);assert.equal(now.records[0].probability.chance,65);assert.equal(old.records[0].probability,undefined);});
+test('仅三类变数使用 d100',()=>{const r=execute('0123456789',[{type:'identity',actor:'林舟',newCharacter:true,basis:'新人物',side:'neutral'}],{...cfg,dynamic:true});assert.equal(r.records[0].probability,undefined);});
+test('事件上限与固定事实过滤',()=>{assert.equal(execute('0123456789',[event,{...event,actor:'陈平'},{...event,actor:'乙',fixed:true}],{...cfg,maxEvents:1}).records.length,1);});
+test('NPC 归一化、数值截断与去重',()=>{const s=normalizeState({npcs:[{name:'林舟',trust:999},{name:'林舟',trust:1}],facts:[]});assert.equal(s.npcs.length,1);assert.equal(s.npcs[0].trust,100);});
+test('秘密权限：无角色和混合角色均不披露',()=>{assert.deepEqual(visibleFacts(state,[]).map(x=>x.id),['b']);assert.deepEqual(visibleFacts(state,['林舟']).map(x=>x.id),['a','b']);assert.deepEqual(visibleFacts(state,['林舟','陈平']).map(x=>x.id),['b']);});
+test('NPC 候选匹配',()=>assert.deepEqual(npcContext(state,'林舟来到港口',cfg).actors,['林舟']));
+test('无证据的更新不生效',()=>{const r=applyNpcProposal(state,[{name:'林舟',evidence:'林舟找到了宝藏',trust:10}],'林舟继续寻找');assert.equal(r.accepted.length,0);assert.equal(r.state.npcs[0].trust,65);});
+test('更新不得以自己的元数据为证据',()=>{const o='<rve-npc-update>[{"name":"林舟","evidence":"林舟见到了商人"}]</rve-npc-update>';assert.equal(applyNpcProposal(state,parseNpcProposal(o),o).accepted.length,0);});
+test('允许有文本证据的有界变化，不自动改变秘密与既定人格',()=>{const r=applyNpcProposal(state,[{name:'林舟',evidence:'林舟与商人达成合作',trust:90,traits:['鲁莽'],knownBy:['陈平']}],'林舟与商人达成合作。');assert.equal(r.state.npcs[0].trust,75);assert.deepEqual(r.state.npcs[0].traits,['谨慎']);assert.deepEqual(r.state.facts,state.facts);assert.equal(r.state.revision,1);});
+test('关闭 NPC 后无额外注入',()=>assert.equal(extraPrompt(state,'林舟',{...cfg,npcMemory:false}),''));
+test('宿主提示词标记检测',()=>{assert.equal(promptContains({chat:[{content:'[RVE-1.3-x]'}]},'[RVE-1.3-x]'),true);assert.equal(promptContains({},'[RVE-1.3-x]'),false);assert.equal(diagnostics({event_types:{},setExtensionPrompt(){}}).inject,true);});
